@@ -1,0 +1,109 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jan 27 12:58:59 2025
+
+@author: Uma
+
+Uses the lake bathymetry dataset from MN Geospatial Commons
+(5-m resolution raster data of lake depths, with null values for land)
+to create a DEM with lake depths subtracted.
+
+The primary dataset is 1-m LiDAR.
+
+Looping through each HUC8 sub-watershed, the program
+    - resamples and interpolates the 5-m lake depths to 1-m resolution
+    - subtracts lake depth from the LiDAR (note on signs and units below)
+    - Outputs the new DEM for that sub-watershed to a file
+    
+Note: The lake bathymetry dataset has units of ft, and also is entirely negative numbers.
+This is accounted for in the r.mapcalc calculation.
+"""
+
+import grass.script as gs
+import grass.grassdb.data as gdb
+import pandas as pd
+import numpy as np
+import math
+import os
+
+wsBufferFile = 'wsBuffer.txt'   # this was created in grassScript.py
+bathFile = 'lake_bathymetric_elevation_model.tif'       # MN Geospatial Commons data
+lidarFile = 'D:/MinnesotaLiDAR.tif'         # Path to 1m LiDAR
+
+# The program creates the following two layers in your GRASS location
+DEM_1m = 'demSource'    
+DEM_5m = 'lakeBathymetry'   
+
+# Where output files will be written (each gets their own sub-directory inside)
+outParentDir = 'outputs/'
+
+#%% Function definition
+ 
+def clipResampInterpStitch(n, s, e, w, outName, testing):
+    """ Takes N, S, E, W boundaries of the specified region (usually a sub-watershed). 
+    Interpolates the bathymetry to 1m in this region, converts units, 
+    and adds the negative depth to the full surface DEM. 
+    Outputs to a raster (tiff) file given by outName.
+    
+    If testing is True, the function outputs the interpolated lake depths 
+    and the original LiDAR before lakes were subtracted. 
+    These can be helpful for plotting, but would slow the program down on a large scale.
+    """
+    
+    outDir = outParentDir + outName + '/'
+    if not os.path.exists(outDir):
+        os.mkdir(outDir)
+
+    # Set computational region to the inputted coordinates
+    gs.run_command('g.region', flags='p', n=n, s=s, e=e, w=w, res=1)
+    
+    # Now interpolate/resample the lake-depth DEM across that region
+    clippedBath = outName + '_interp'
+    gs.run_command('r.resamp.interp', input=DEM_5m, output=clippedBath, overwrite=True)   
+    
+    # Add the negative lake depths to the surface DEM. The .3048 is to convert from ft to m
+    subtractedName = outName + '_subtracted'
+    expression = subtractedName + ' = ' + '.3048 * if(isnull(' + clippedBath + '), 0, ' \
+        + clippedBath + ')' + ' + ' + DEM_1m
+    gs.run_command('r.mapcalc', expression=expression, overwrite=True)
+    # Output the new lake-subtracted DEM for that region
+    gs.run_command('r.out.gdal', input=subtractedName, output=outDir + outName+'_stitched.tif', \
+                   format='GTiff', createopt="COMPRESS=LZW,BIGTIFF=YES", overwrite=True)
+        
+    # Output the files for some of the intermediate steps, only if you want to test the program
+    if testing==True:
+        # Interpolated lake depths
+        gs.run_command('r.out.gdal', input=clippedBath, output=outDir + clippedBath + '.tif', \
+                          format='GTiff', createopt="COMPRESS=LZW,BIGTIFF=YES", overwrite=True)
+        # LiDAR 
+        gs.run_command('r.out.gdal', input=DEM_1m, output=outDir + outName+'_lidar.tif', \
+                       format='GTiff', createopt="COMPRESS=LZW,BIGTIFF=YES", overwrite=True)
+        
+    
+#%% Looping through sub-watersheds
+    
+# text file with HUC8 sub-watershed boundary definitions
+wsBuffer = pd.read_csv(wsBufferFile, dtype={'HUC4': 'str', 'HUC_8': 'str'})
+
+# Create external links to the lake bathymetry and LiDAR datasets
+if not (gdb.map_exists(DEM_5m, 'raster')):
+    gs.run_command('r.external', input=bathFile, output=DEM_5m, flags='r')
+    
+if not (gdb.map_exists(DEM_1m, 'raster')):
+    gs.run_command('r.external', input=lidarFile, output=DEM_1m, flags='r')
+
+# Eventually loop through the sub-watersheds, but right now I'm testing small regions
+for i in [0]:    #range(len(wsBuffer)):    # Loop over subwatersheds
+    subWS = wsBuffer.iloc[i]
+    # Uncomment next two lines to loop through all sub-watersheds
+    #n, s, e, w = subWS['n'], subWS['s'], subWS['e'], subWS['w']     # Subwatershed boundaries - for test purposes use a smaller region
+    #outName = subWS['HUC_8']
+    
+    # I manually found these coordinates and tested the program on all three lakes
+    #n, s, e, w = 4979294, 4973417, 476699, 473904       # Chain of Lakes test 
+    #n, s, e, w = 4974712, 4971962, 481715, 479875       # Lake Nokomis test
+    n, s, e, w = 4994950, 4988749, 504658, 498314       # White Bear Lake test
+    outName = 'whiteBearLake'
+    
+    clipResampInterpStitch(n, s, e, w, outName, True)
+       
