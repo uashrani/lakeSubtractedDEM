@@ -14,6 +14,8 @@ The program resamples and interpolates the lake depth data from a 5-m resolution
 If you chose to output the intermediate files earlier, this program plots them. It plots lake depth, the surface LiDAR, and the lake-subtracted LiDAR side-by-side.  
 
 ### Outputs
+These are a few examples - I ran both the stitching program and the viewing program. The Chain of Lakes and the White Bear Lake seem to have a ring of depth=0 around the edge of the lake, so they blend somewhat smoothly with their surroundings. However, Lake Nokomis has nonzero depth even at the edge, and looks sharp in contrast to its surroundings. I am not sure if a secondary interpolation, across the lake boundary, will be needed in these cases.
+
 #### Chain of Lakes
 ![chainOfLakes_subtraction](https://github.com/user-attachments/assets/cb29d8ef-d365-46ac-94bd-3f607e1fbe05)
 
