@@ -29,9 +29,15 @@ These are a few examples - I ran both the stitching program and the viewing prog
 After noticing the sharp transition from land to water, one idea was to replace some of the null data outside the edges of the lake by setting depth=0. This did not seem to smooth out the boundary much. 
 
 This is how the buffer zone looked: for testing purposes, I created a buffer of 50m around the lake edges so that I could visually see it worked. Interpolating across this would be the same as with a 10m buffer.
-
+![nokomis_buffer](https://github.com/user-attachments/assets/f7de82cc-10ba-47ce-ae42-f5c310c01c5b)
 
 It looks like the original bathymetry DEM already had a zone of 0 depth around the edge, so all the buffer did was make that zone thicker. To confirm, when I interpolated across the buffered vs the non-buffered DEM, I did not visually see any changes. Even when I took an elevation profile across the lake, the differences between methods were small. 
 
 The line drawn across the lake shows where the profile was taken, and I highlighted in red the regions that I zoom in on. The full elevation profile also has dashed lines showing which regions I zoom in on. These regions show where the buffered and non-buffered DEMs are different from each other. When I interpolated across the buffer, I tried the bilinear vs bicubic methods of interpolation, so these are also shown in the plots.
+![profileTransect](https://github.com/user-attachments/assets/1b644496-0131-476f-88bd-d751c1591da8)
 
+![elevProfile](https://github.com/user-attachments/assets/faec3030-7018-4d27-8f8c-61d91b1daf3d)
+
+![elevProfile80s](https://github.com/user-attachments/assets/889f50e1-1a64-4fd0-a0f4-69cfa3192529)
+
+![elevProfile700s](https://github.com/user-attachments/assets/f9c17684-b242-4e17-9980-1a28c68901da)
