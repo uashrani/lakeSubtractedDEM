@@ -55,25 +55,11 @@ def clipResampInterpStitch(n, s, e, w, outName, testing):
         os.mkdir(outDir)
 
     # Set computational region to the inputted coordinates
-    gs.run_command('g.region', flags='p', n=n, s=s, e=e, w=w, align=DEM_5m)
-    if testing==True:
-        gs.run_command('r.out.gdal', input=DEM_5m, output=outDir+outName+'_5m.tif', \
-                       format='GTiff', createopt="COMPRESS=LZW,BIGTIFF=YES", overwrite=True)
-
-    # Grow the bathymetry by adding a buffer zone of 5m cells equal to 0 depth
-    grownBath=outName+'_grown'
-    rad=2 # units of radius are in cells, which are 5m each here
-    gs.run_command('r.grow', input=DEM_5m, output=grownBath, radius=rad, new=0, overwrite=True)
-    if testing==True:
-        gs.run_command('r.out.gdal', input=grownBath, output=outDir+grownBath+'.tif', \
-                       format='GTiff', createopt="COMPRESS=LZW,BIGTIFF=YES", overwrite=True)
-
-    # Set region resolution to 1 - earlier we added 0s to the coarse resolution 
-    gs.run_command('g.region', res=1)
+    gs.run_command('g.region', flags='p', n=n, s=s, e=e, w=w, res=1)
 
     # Now interpolate/resample the grown lake-depth DEM across that region
     interpBath = outName + '_interp'
-    gs.run_command('r.resamp.interp', input=grownBath, output=interpBath, overwrite=True)   
+    gs.run_command('r.resamp.interp', input=DEM_5m, output=interpBath, overwrite=True)   
     
     # Add the negative lake depths to the surface DEM. The .3048 is to convert from ft to m
     subtractedName = outName + '_subtracted'
