@@ -22,8 +22,6 @@ This is accounted for in the r.mapcalc calculation.
 import grass.script as gs
 import grass.grassdb.data as gdb
 import pandas as pd
-import numpy as np
-import math
 import os
 
 wsBufferFile = 'wsBuffer.txt'   # this was created in grassScript.py
@@ -92,18 +90,12 @@ if not (gdb.map_exists(DEM_5m, 'raster')):
 if not (gdb.map_exists(DEM_1m, 'raster')):
     gs.run_command('r.external', input=lidarFile, output=DEM_1m, flags='r')
 
-# Eventually loop through the sub-watersheds, but right now I'm testing small regions
-for i in [0]:    #range(len(wsBuffer)):    # Loop over subwatersheds
+# Eventually loop through all sub-watersheds, but test a couple for now
+# Index positions of test watersheds: Thief River(i=63), Redwood River(i=6)
+for i in [6, 63]:    #range(len(wsBuffer)):    # Loop over subwatersheds
     subWS = wsBuffer.iloc[i]
-    # Uncomment next two lines to loop through all sub-watersheds
-    #n, s, e, w = subWS['n'], subWS['s'], subWS['e'], subWS['w']     # Subwatershed boundaries - for test purposes use a smaller region
-    #outName = subWS['HUC_8']
-    
-    # I manually found these coordinates and tested the program on all three lakes
-    #n, s, e, w = 4979294, 4973417, 476699, 473904       # Chain of Lakes test 
-    #n, s, e, w = 4974712, 4971962, 481715, 479875       # Lake Nokomis test
-    n, s, e, w = 4994950, 4988749, 504658, 498314       # White Bear Lake test
-    outName = 'whiteBearLake'
+    n, s, e, w = subWS['n'], subWS['s'], subWS['e'], subWS['w']     # Subwatershed boundaries - for test purposes use a smaller region
+    outName = subWS['HUC_8']
     
     clipResampInterpStitch(n, s, e, w, outName, True)
        
