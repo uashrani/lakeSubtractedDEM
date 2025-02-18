@@ -95,7 +95,10 @@ if not (gdb.map_exists(DEM_1m, 'raster')):
     gs.run_command('r.external', input=lidarFile, output=DEM_1m, flags='r')
 
 # Eventually loop through all sub-watersheds, but test a couple for now
-# Index positions of test watersheds: Thief River(i=63), Redwood River(i=6)
+# Index positions of test watersheds: 
+#   - Thief River(i=63)
+#   - Redwood River(i=6)
+#   - Rainy River(i=78) - not test watershed but largest in area
 for i in [78]: # [6, 63]:    #range(len(wsBuffer)):    # Loop over subwatersheds
     subWS = wsBuffer.iloc[i]
     n, s, e, w = subWS['n'], subWS['s'], subWS['e'], subWS['w']     # Subwatershed boundaries - for test purposes use a smaller region
