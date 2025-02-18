@@ -33,7 +33,8 @@ DEM_1m = 'demSource'
 DEM_5m = 'lakeBathymetry'   
 
 # Where output files will be written (each gets their own sub-directory inside)
-outParentDir = 'outputs/'
+outParentDir = 'C:/Users/swimm/OneDrive/Documents/MNiMORPH/' + \
+    'drainageDitches/hydroBoundaries/lakeBathymetry_dataset/outputs/'
 
 #%% Function definition
  
@@ -58,15 +59,18 @@ def clipResampInterpStitch(n, s, e, w, outName, testing):
     # Now interpolate/resample the grown lake-depth DEM across that region
     interpBath = outName + '_interp'
     gs.run_command('r.resamp.interp', input=DEM_5m, output=interpBath, overwrite=True)   
+    print('Interpolation finished')
     
     # Add the negative lake depths to the surface DEM. The .3048 is to convert from ft to m
     subtractedName = outName + '_subtracted'
     expression = subtractedName + ' = ' + '.3048 * if(isnull(' + interpBath + '), 0, ' \
         + interpBath + ')' + ' + ' + DEM_1m
     gs.run_command('r.mapcalc', expression=expression, overwrite=True)
+    print('Addition finished')   
     # Output the new lake-subtracted DEM for that region
     gs.run_command('r.out.gdal', input=subtractedName, output=outDir + outName+'_stitched.tif', \
                    format='GTiff', createopt="COMPRESS=LZW,BIGTIFF=YES", overwrite=True)
+     
         
     # Output the files for some of the intermediate steps, only if you want to test the program
     if testing==True:
@@ -92,10 +96,10 @@ if not (gdb.map_exists(DEM_1m, 'raster')):
 
 # Eventually loop through all sub-watersheds, but test a couple for now
 # Index positions of test watersheds: Thief River(i=63), Redwood River(i=6)
-for i in [6, 63]:    #range(len(wsBuffer)):    # Loop over subwatersheds
+for i in [78]: # [6, 63]:    #range(len(wsBuffer)):    # Loop over subwatersheds
     subWS = wsBuffer.iloc[i]
     n, s, e, w = subWS['n'], subWS['s'], subWS['e'], subWS['w']     # Subwatershed boundaries - for test purposes use a smaller region
-    outName = subWS['HUC_8']
+    outName = 'HUC_' + subWS['HUC_8']
     
-    clipResampInterpStitch(n, s, e, w, outName, True)
+    clipResampInterpStitch(n, s, e, w, outName, False)
        
