@@ -3,14 +3,16 @@
 Created on Tue Nov 19 14:19:07 2024
 
 @author: Uma
+
+Creates text file with rectangular bounding box around each HUC8 sub-watershed
+Pads the watershed extent by 100m in each direction
 """
 
 import grass.script as gs
 import pandas as pd
 import math
-import os
 
-bufferFile = 'bufferShp.txt'    # name of file containing buffer around each subwatershed, whether the file exists yet or not
+bufferFile = 'bufferShp.txt'    # name of output file w/ padded HUC8 boundaries
 mapName = 'dnr_watersheds_dnr_level_04_huc_08_majors'   # vector layer in Grass GIS
 hucLevel = 'HUC_8'   # column name in the shapefile metadata
 
@@ -39,6 +41,9 @@ def createBoundingBox():
     for downCol in ['s', 'w']:
         col2 = pd.Series([(math.floor(item)-100) for item in rawBox[downCol]])
         bufferBox[downCol]=col2
+        
+    colArea = (bufferBox['n']-bufferBox['s'])*(bufferBox['e']-bufferBox['w'])
+    bufferBox['rectArea']=colArea
         
     bufferBox.to_csv(bufferFile, index=False)
     
