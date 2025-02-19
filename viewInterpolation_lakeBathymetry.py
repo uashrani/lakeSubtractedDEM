@@ -14,7 +14,7 @@ outParentDir = 'C:/Users/swimm/OneDrive/Documents/MNiMORPH/' + \
 baseName = 'HUC_07080102'
 
 #%% Compare absolute elevation w/ elevation above reference 
-baseName = 'outputs/' + baseName + '/' + baseName
+baseName = outParentDir + baseName + '/' + baseName
 
 # These are the same file names and directories that the stitching program outputted
 fileFloat=baseName + '_stitched.tif'
@@ -36,7 +36,7 @@ rasInt.close()
 
 titles = ['Float64', 'UInt16']
 plots = [p0, p1]
-cbarUnits = ['Elevation [m]', 'Elevation Above Reference [cm]']
+labels = ['Elevation [m]', 'Elevation Above Reference [cm]']
 
 for (i,ax) in enumerate(axs):
     ax.set_xlabel('Easting [m]')
@@ -44,6 +44,7 @@ for (i,ax) in enumerate(axs):
     ax.set_title(titles[i])
     c = fig.colorbar(plots[i], ax=ax, location='right', \
                      pad=0.07, shrink=0.8)
+    c.set_label(labels[i])
 
 #%% Compare bathymetry file with the LiDAR
 # baseName = 'outputs/' + baseName + '/' + baseName
