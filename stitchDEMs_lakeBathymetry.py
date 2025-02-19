@@ -59,14 +59,12 @@ def clipResampInterpStitch(n, s, e, w, outName, testing):
     # Now interpolate/resample the grown lake-depth DEM across that region
     interpBath = outName + '_interp'
     gs.run_command('r.resamp.interp', input=DEM_5m, output=interpBath, overwrite=True)   
-    print('Interpolation finished')
     
     # Add the negative lake depths to the surface DEM. The .3048 is to convert from ft to m
     subtractedName = outName + '_subtracted'
     expression = subtractedName + ' = ' + '.3048 * if(isnull(' + interpBath + '), 0, ' \
         + interpBath + ')' + ' + ' + DEM_1m
-    gs.run_command('r.mapcalc', expression=expression, overwrite=True)
-    print('Addition finished')   
+    gs.run_command('r.mapcalc', expression=expression, overwrite=True)  
     # Output the new lake-subtracted DEM for that region
     gs.run_command('r.out.gdal', input=subtractedName, output=outDir + outName+'_stitched.tif', \
                    format='GTiff', createopt="COMPRESS=LZW,BIGTIFF=YES", overwrite=True)
@@ -99,10 +97,11 @@ if not (gdb.map_exists(DEM_1m, 'raster')):
 #   - Thief River(i=63)
 #   - Redwood River(i=6)
 #   - Rainy River(i=78) - not test watershed but largest in area
-for i in [78]: # [6, 63]:    #range(len(wsBuffer)):    # Loop over subwatersheds
+#   - Upper Wapsipinicon River(i=28) - smallest in area
+for i in [28]: # [6, 63]:    #range(len(wsBuffer)):    # Loop over subwatersheds
     subWS = wsBuffer.iloc[i]
     n, s, e, w = subWS['n'], subWS['s'], subWS['e'], subWS['w']     # Subwatershed boundaries - for test purposes use a smaller region
     outName = 'HUC_' + subWS['HUC_8']
     
-    clipResampInterpStitch(n, s, e, w, outName, False)
+    clipResampInterpStitch(n, s, e, w, outName, True)
        
