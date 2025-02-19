@@ -12,7 +12,7 @@ import grass.script as gs
 import pandas as pd
 import math
 
-bufferFile = 'bufferShp.txt'    # name of output file w/ padded HUC8 boundaries
+bufferFile = 'wsBuffer.txt'    # name of output file w/ padded HUC8 boundaries
 mapName = 'dnr_watersheds_dnr_level_04_huc_08_majors'   # vector layer in Grass GIS
 hucLevel = 'HUC_8'   # column name in the shapefile metadata
 
@@ -28,7 +28,7 @@ def createBoundingBox():
                    columns=['n', 's', 'e', 'w'], overwrite=True)
         
     # Output the attribute table with the new columns as tmp.txt, and read it in
-    gs.run_command('v.db.select', map=mapName, format='csv', file='tmp.txt')
+    gs.run_command('v.db.select', map=mapName, format='csv', file='tmp.txt', overwrite=True)
     rawBox = pd.read_csv('tmp.txt', dtype={'HUC4': 'str', 'HUC_8': 'str'})
     bufferBox = rawBox.copy()
 
