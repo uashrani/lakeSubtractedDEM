@@ -29,7 +29,8 @@ bathFile = 'lake_bathymetric_elevation_model.tif'       # MN Geospatial Commons 
 lidarFile = 'D:/MinnesotaLiDAR.tif'         # Path to 1m LiDAR
 
 # The program creates the following two layers in your GRASS location
-DEM_1m = 'demSource'    
+#DEM_1m = 'demSource'
+DEM_1m = 'HUC_07080102_lidar'   
 DEM_5m = 'lakeBathymetry'   
 
 # Where output files will be written (each gets their own sub-directory inside)
@@ -65,10 +66,14 @@ def clipResampInterpStitch(n, s, e, w, outName, testing):
     expression = subtractedName + ' = ' + '.3048 * if(isnull(' + interpBath + '), 0, ' \
         + interpBath + ')' + ' + ' + DEM_1m
     gs.run_command('r.mapcalc', expression=expression, overwrite=True)  
+    # Convert to height above baseline in cm, lets us represent as int
+    intName = outName + '_int'
+    # Pseudocode: intName = round((DEM - 100) * 100)
+    expression = intName + ' = ' + 'round((' + subtractedName + '-100)*100)'
+    gs.run_command('r.mapcalc', expression=expression, overwrite=True)
     # Output the new lake-subtracted DEM for that region
-    gs.run_command('r.out.gdal', input=subtractedName, output=outDir + outName+'_stitched.tif', \
-                   format='GTiff', createopt="COMPRESS=LZW,BIGTIFF=YES", overwrite=True)
-     
+    gs.run_command('r.out.gdal', flags='f', input=intName, output=outDir + outName+'_int.tif', \
+                   format='GTiff', createopt="COMPRESS=LZW,BIGTIFF=YES", overwrite=True, type='UInt16')
         
     # Output the files for some of the intermediate steps, only if you want to test the program
     if testing==True:
@@ -93,15 +98,15 @@ if not (gdb.map_exists(DEM_1m, 'raster')):
     gs.run_command('r.external', input=lidarFile, output=DEM_1m, flags='r')
 
 # Eventually loop through all sub-watersheds, but test a couple for now
-# Index positions of test watersheds: 
-#   - Thief River(i=63)
-#   - Redwood River(i=6)
-#   - Rainy River(i=78) - not test watershed but largest in area
+# Index positions of certain watersheds: 
+#   - Thief River(i=63) - test watershed
+#   - Redwood River(i=6) - test watershed
+#   - Rainy River(i=78) - largest in area
 #   - Upper Wapsipinicon River(i=28) - smallest in area
 for i in [28]: # [6, 63]:    #range(len(wsBuffer)):    # Loop over subwatersheds
     subWS = wsBuffer.iloc[i]
     n, s, e, w = subWS['n'], subWS['s'], subWS['e'], subWS['w']     # Subwatershed boundaries - for test purposes use a smaller region
     outName = 'HUC_' + subWS['HUC_8']
     
-    clipResampInterpStitch(n, s, e, w, outName, True)
+    clipResampInterpStitch(n, s, e, w, outName, False)
        

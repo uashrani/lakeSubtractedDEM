@@ -9,9 +9,43 @@ import rioxarray
 import numpy as np
 import matplotlib.pyplot as plt
 
-#%% Compare bathymetry file with the LiDAR
+outParentDir = 'C:/Users/swimm/OneDrive/Documents/MNiMORPH/' + \
+    'drainageDitches/hydroBoundaries/lakeBathymetry_dataset/outputs/'
+baseName = 'HUC_07080102'
 
-baseName = 'whiteBearLake'
+#%% Compare absolute elevation w/ elevation above reference 
+baseName = 'outputs/' + baseName + '/' + baseName
+
+# These are the same file names and directories that the stitching program outputted
+fileFloat=baseName + '_stitched.tif'
+fileInt=baseName + '_int.tif'
+
+fig, axs = plt.subplots(2, 1, figsize=(10, 14))
+fig.suptitle('Data-Type Comparison', y=0.93)
+
+## Now plot full DEMs
+# Plot the lake-subtracted DEM, and find the data min and max for the colorbar
+rasFloat=rioxarray.open_rasterio(fileFloat, masked=True).squeeze()
+p0 = axs[0].pcolormesh(rasFloat.x, rasFloat.y, rasFloat.data)
+rasFloat.close()
+
+# Plot the LiDAR DEM, sharing a colorbar with the lake-subtracted one
+rasInt=rioxarray.open_rasterio(fileInt, masked=True).squeeze()
+p1 = axs[1].pcolormesh(rasInt.x, rasInt.y, rasInt.data)
+rasInt.close()
+
+titles = ['Float64', 'UInt16']
+plots = [p0, p1]
+cbarUnits = ['Elevation [m]', 'Elevation above 100m [cm]']
+
+for (i,ax) in enumerate(axs):
+    ax.set_xlabel('Easting [m]')
+    ax.set_ylabel('Northing [m]')
+    ax.set_title(titles[i])
+    c = fig.colorbar(plots[i], ax=ax, location='right', \
+                     pad=0.07, shrink=0.8)
+
+#%% Compare bathymetry file with the LiDAR
 baseName = 'outputs/' + baseName + '/' + baseName
 
 # These are the same file names and directories that the stitching program outputted
