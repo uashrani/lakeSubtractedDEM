@@ -9,8 +9,7 @@ import rioxarray
 import numpy as np
 import matplotlib.pyplot as plt
 
-outParentDir = 'C:/Users/swimm/OneDrive/Documents/MNiMORPH/' + \
-    'drainageDitches/hydroBoundaries/lakeBathymetry_dataset/outputs/'
+outParentDir = '/media/uashrani/topobathy-ditch/'
 baseName = 'HUC_07080102'
 
 #%% Compare absolute elevation w/ elevation above reference 
@@ -25,9 +24,9 @@ fig.suptitle('Data-Type Comparison', y=0.93)
 
 ## Now plot full DEMs
 # Plot the lake-subtracted DEM, and find the data min and max for the colorbar
-rasFloat=rioxarray.open_rasterio(fileFloat, masked=True).squeeze()
-p0 = axs[0].pcolormesh(rasFloat.x, rasFloat.y, rasFloat.data)
-rasFloat.close()
+# rasFloat=rioxarray.open_rasterio(fileFloat, masked=True).squeeze()
+# p0 = axs[0].pcolormesh(rasFloat.x, rasFloat.y, rasFloat.data)
+# rasFloat.close()
 
 # Plot the LiDAR DEM, sharing a colorbar with the lake-subtracted one
 rasInt=rioxarray.open_rasterio(fileInt, masked=True).squeeze()

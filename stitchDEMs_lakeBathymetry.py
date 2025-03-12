@@ -25,17 +25,15 @@ import pandas as pd
 import os
 
 wsBufferFile = 'wsBuffer.txt'   # this was created in grassScript.py
-bathFile = 'lake_bathymetric_elevation_model.tif'       # MN Geospatial Commons data
-lidarFile = 'D:/MinnesotaLiDAR.tif'         # Path to 1m LiDAR
+bathFile = '/home/uashrani/Documents/lake_bathymetric_elevation_model.tif'       # MN Geospatial Commons data
+lidarFile = '/media/uashrani/topobathy-ditch/MinnesotaLiDAR.tif'         # Path to 1m LiDAR
 
 # The program creates the following two layers in your GRASS location
-#DEM_1m = 'demSource'
-DEM_1m = 'HUC_07080102_lidar'   
+DEM_1m = 'demSource'
 DEM_5m = 'lakeBathymetry'   
 
 # Where output files will be written (each gets their own sub-directory inside)
-outParentDir = 'C:/Users/swimm/OneDrive/Documents/MNiMORPH/' + \
-    'drainageDitches/hydroBoundaries/lakeBathymetry_dataset/outputs/'
+outParentDir = '/media/uashrani/topobathy-ditch/'
 
 #%% Function definition
  
@@ -103,7 +101,7 @@ if not (gdb.map_exists(DEM_1m, 'raster')):
 #   - Redwood River(i=6) - test watershed
 #   - Rainy River(i=78) - largest in area
 #   - Upper Wapsipinicon River(i=28) - smallest in area
-for i in [28]: # [6, 63]:    #range(len(wsBuffer)):    # Loop over subwatersheds
+for i in [28]: #[6, 63]:    #range(len(wsBuffer)):    # Loop over subwatersheds
     subWS = wsBuffer.iloc[i]
     n, s, e, w = subWS['n'], subWS['s'], subWS['e'], subWS['w']     # Subwatershed boundaries - for test purposes use a smaller region
     outName = 'HUC_' + subWS['HUC_8']
