@@ -33,7 +33,7 @@ DEM_1m = 'demSource'
 DEM_5m = 'lakeBathymetry'   
 
 # Where output files will be written (each gets their own sub-directory inside)
-outParentDir = '/media/uashrani/topobathy-ditch/'
+outParentDir = '/media/uashrani/topobathy-ditch/outputs/'
 
 #%% Function definition
  
@@ -101,7 +101,7 @@ if not (gdb.map_exists(DEM_1m, 'raster')):
 #   - Redwood River(i=6) - test watershed
 #   - Rainy River(i=78) - largest in area
 #   - Upper Wapsipinicon River(i=28) - smallest in area
-for i in [28]: #[6, 63]:    #range(len(wsBuffer)):    # Loop over subwatersheds
+for i in [63]:    #range(len(wsBuffer)):    # Loop over subwatersheds
     subWS = wsBuffer.iloc[i]
     n, s, e, w = subWS['n'], subWS['s'], subWS['e'], subWS['w']     # Subwatershed boundaries - for test purposes use a smaller region
     outName = 'HUC_' + subWS['HUC_8']
