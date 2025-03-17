@@ -70,7 +70,7 @@ def clipResampInterpStitch(n, s, e, w, outName, testing):
     expression = intName + ' = ' + 'round((' + subtractedName + '-100)*100)'
     gs.run_command('r.mapcalc', expression=expression, overwrite=True)
     # Output the new lake-subtracted DEM for that region
-    gs.run_command('r.out.gdal', flags='f', input=intName, output=outDir + outName+'_int.tif', \
+    gs.run_command('r.out.gdal', flags='f', input=intName, output=outDir + outName+'.tif', \
                    format='GTiff', createopt="COMPRESS=LZW,BIGTIFF=YES", overwrite=True, type='UInt16')
         
     # Output the files for some of the intermediate steps, only if you want to test the program
