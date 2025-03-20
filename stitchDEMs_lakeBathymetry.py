@@ -69,6 +69,10 @@ def clipResampInterpStitch(n, s, e, w, outName, testing):
     # Pseudocode: intName = round((DEM - 100) * 100)
     expression = intName + ' = ' + 'round((' + subtractedName + '-100)*100)'
     gs.run_command('r.mapcalc', expression=expression, overwrite=True)
+
+    # not yet tested: could we grow the region by 1, which creates a buffer of NaNs around the edge?
+    gs.run_command('g.region', grow=1)
+
     # Output the new lake-subtracted DEM for that region
     gs.run_command('r.out.gdal', flags='f', input=intName, output=outDir + outName+'.tif', \
                    format='GTiff', createopt="COMPRESS=LZW,BIGTIFF=YES", overwrite=True, type='UInt16')
