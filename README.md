@@ -8,7 +8,7 @@ The program will also loop through the HUC8 sub-watersheds, found at: https://gi
 
 ### Python program
 #### [stitchDEMs_lakeBathymetry.py](https://github.com/uashrani/lakeSubtractedDEM/blob/main/stitchDEMs_lakeBathymetry.py)
-The program adds a 10-m "buffer zone" around the edges of each lake, setting lake depth to 0. (Previously it was null/missing data.) It then resamples and interpolates the buffered lake-depth data from a 5-m resolution to a 1-m resolution. Next, it adds the (negative) depth to the LiDAR and outputs this file. There is an option to output some of the intermediate files as well, if you want to test the program on a small region first.
+The program resamples and interpolates lake-depth data from a 5-m resolution to a 1-m resolution. Next, it adds the (negative) depth to the LiDAR. It converts datatypes from float64 to uint16 (and correspondingly, units go from meters to centimeters). For some models, the edges of the DEM need to be set to null, so the program does this as well and outputs the final topobathy file. There is an option to output some of the intermediate files as well, if you want to test the program on a small region first.
 
 #### [viewInterpolation_lakeBathymetry.py](https://github.com/uashrani/lakeSubtractedDEM/blob/main/viewInterpolation_lakeBathymetry.py)
 If you chose to output the intermediate files earlier, this program plots them. It plots lake depth, the surface LiDAR, and the lake-subtracted LiDAR side-by-side.  
@@ -34,6 +34,7 @@ This is how the buffer zone looked: for testing purposes, I created a buffer of 
 It looks like the original bathymetry DEM already had a zone of 0 depth around the edge, so all the buffer did was make that zone thicker. To confirm, when I interpolated across the buffered vs the non-buffered DEM, I did not visually see any changes. Even when I took an elevation profile across the lake, the differences between methods were small. 
 
 The line drawn across the lake shows where the profile was taken, and I highlighted in red the regions that I zoom in on. The full elevation profile also has dashed lines showing which regions I zoom in on. These regions show where the buffered and non-buffered DEMs are different from each other. When I interpolated across the buffer, I tried the bilinear vs bicubic methods of interpolation, so these are also shown in the plots.
+
 ![profileTransect](https://github.com/user-attachments/assets/1b644496-0131-476f-88bd-d751c1591da8)
 
 ![elevProfile](https://github.com/user-attachments/assets/faec3030-7018-4d27-8f8c-61d91b1daf3d)
