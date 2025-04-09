@@ -17,6 +17,8 @@ Looping through each HUC8 sub-watershed, the program
     
 Note: The lake bathymetry dataset has units of ft, and also is entirely negative numbers.
 This is accounted for in the r.mapcalc calculation.
+
+These DEMs will be used as inputs to Depression Hierarchy (DH) and Fill-Spill-Merge (FSM).
 """
 
 import grass.script as gs
@@ -70,11 +72,12 @@ def clipResampInterpStitch(n, s, e, w, outName, testing):
     expression = intName + ' = ' + 'round((' + subtractedName + '-100)*100)'
     gs.run_command('r.mapcalc', expression=expression, overwrite=True)
 
-    # not yet tested: could we grow the region by 1, which creates a buffer of NaNs around the edge?
+    # Grow the region by 1, creating buffer of NaNs around the edge. Needed for Depression Hierarchy and Fill-Spill-Merge
     gs.run_command('g.region', grow=1)
 
     # Output the new lake-subtracted DEM for that region
-    gs.run_command('r.out.gdal', flags='f', input=intName, output=outDir + outName+'.tif', \
+    # nodata value is 0, otherwise automatic value is 65535. DH and FSM need nodata value to be lower than rest of data
+    gs.run_command('r.out.gdal', flags='f', input=intName, output=outDir + outName+'.tif', nodata=0, \
                    format='GTiff', createopt="COMPRESS=LZW,BIGTIFF=YES", overwrite=True, type='UInt16')
         
     # Output the files for some of the intermediate steps, only if you want to test the program
